@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/sdk-application-tutorial/x/nameservice"
+	"github.com/cosmos/sdk-application-tutorial/x/poa" //FIXME: the poa module will be moved outside of this repos
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -34,6 +35,7 @@ type nameserviceApp struct {
 	bankKeeper          bank.Keeper
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	nsKeeper            nameservice.Keeper
+	poaKeeper           poa.Keeper
 }
 
 // NewnameserviceApp is a constructor function for nameserviceApp
@@ -135,12 +137,22 @@ func (app *nameserviceApp) initChainer(ctx sdk.Context, req abci.RequestInitChai
 	return abci.ResponseInitChain{}
 }
 
+// EndBlocker updates every end block
+func (app *nameserviceApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+	validatorUpdates := poa.EndBlocker(ctx, app.poaKeeper)
+	return abci.ResponseEndBlock{
+		ValidatorUpdates: validatorUpdates,
+		Tags:             nil,
+	}
+}
+
 // MakeCodec generates the necessary codecs for Amino
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
 	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
 	nameservice.RegisterCodec(cdc)
+	poa.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	return cdc

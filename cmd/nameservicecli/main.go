@@ -14,6 +14,7 @@ import (
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	app "github.com/cosmos/sdk-application-tutorial"
 	nameservicecmd "github.com/cosmos/sdk-application-tutorial/x/nameservice/client/cli"
+	poacmd "github.com/cosmos/sdk-application-tutorial/x/poa/client/cli"
 )
 
 const storeAcc = "acc"
@@ -49,6 +50,7 @@ func main() {
 		authcmd.GetAccountCmd(storeAcc, cdc, authcmd.GetAccountDecoder(cdc)),
 		nameservicecmd.GetCmdResolveName("nameservice", cdc),
 		nameservicecmd.GetCmdWhois("nameservice", cdc),
+		poacmd.GetCmdQueryValidators("poa", cdc),
 	)...)
 
 	txCmd := &cobra.Command{
@@ -60,6 +62,7 @@ func main() {
 		bankcmd.SendTxCmd(cdc),
 		nameservicecmd.GetCmdBuyName(cdc),
 		nameservicecmd.GetCmdSetName(cdc),
+		poacmd.GetCmdCreateValidator(cdc),
 	)...)
 
 	rootCmd.AddCommand(
