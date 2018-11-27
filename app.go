@@ -30,6 +30,7 @@ type nameserviceApp struct {
 	keyNSowners      *sdk.KVStoreKey
 	keyNSprices      *sdk.KVStoreKey
 	keyFeeCollection *sdk.KVStoreKey
+	keyPoaStore      *sdk.KVStoreKey
 
 	accountKeeper       auth.AccountKeeper
 	bankKeeper          bank.Keeper
@@ -58,6 +59,7 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 		keyNSowners:      sdk.NewKVStoreKey("ns_owners"),
 		keyNSprices:      sdk.NewKVStoreKey("ns_prices"),
 		keyFeeCollection: sdk.NewKVStoreKey("fee_collection"),
+		keyPoaStore:      sdk.NewKVStoreKey("poa_store"),
 	}
 
 	// The AccountKeeper handles address -> account lookups
@@ -83,6 +85,8 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 		app.cdc,
 	)
 
+	app.poaKeeper = poa.NewKeeper(app.keyPoaStore, app.cdc)
+
 	// The AnteHandler handles signature verification and transaction pre-processing
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 
@@ -90,11 +94,13 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 	// Register the bank and nameservice routes here
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
-		AddRoute("nameservice", nameservice.NewHandler(app.nsKeeper))
+		AddRoute("nameservice", nameservice.NewHandler(app.nsKeeper)).
+		AddRoute("poa", poa.NewHandler(app.poaKeeper))
 
 	// The app.QueryRouter is the main query router where each module registers its routes
 	app.QueryRouter().
-		AddRoute("nameservice", nameservice.NewQuerier(app.nsKeeper))
+		AddRoute("nameservice", nameservice.NewQuerier(app.nsKeeper)).
+		AddRoute("poa", poa.NewQuerier(app.poaKeeper, app.cdc))
 
 	// The initChainer handles translating the genesis.json file into initial state for the network
 	app.SetInitChainer(app.initChainer)
