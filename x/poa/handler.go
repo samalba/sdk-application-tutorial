@@ -14,7 +14,7 @@ func NewHandler(keeper Keeper) sdk.Handler {
 		case MsgCreateValidator:
 			return handleMsgCreateValidator(ctx, keeper, msg)
 		default:
-			errMsg := fmt.Sprintf("Unrecognized nameservice Msg type: %v", msg.Type())
+			errMsg := fmt.Sprintf("Unrecognized poa Msg type: %v", msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
 		}
 	}

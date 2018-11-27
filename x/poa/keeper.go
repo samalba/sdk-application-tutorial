@@ -11,8 +11,7 @@ import (
 // Keeper exposes the data store
 type Keeper struct {
 	storeKey sdk.StoreKey
-
-	cdc *codec.Codec
+	cdc      *codec.Codec
 }
 
 // ValidatorValue declares the main validator struct
@@ -26,6 +25,14 @@ func (v ValidatorValue) ABCIValidatorUpdate() abci.ValidatorUpdate {
 	return abci.ValidatorUpdate{
 		PubKey: tmtypes.TM2PB.PubKey(v.PubKey),
 		Power:  10, //NOTE: Set arbitrary value - can be changed for setting a weight on each validator
+	}
+}
+
+// NewKeeper creates new instances of the nameservice Keeper
+func NewKeeper(storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
+	return Keeper{
+		storeKey: storeKey,
+		cdc:      cdc,
 	}
 }
 
