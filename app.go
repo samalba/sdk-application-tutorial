@@ -111,6 +111,7 @@ func NewnameserviceApp(logger log.Logger, db dbm.DB) *nameserviceApp {
 		app.keyNSnames,
 		app.keyNSowners,
 		app.keyNSprices,
+		app.keyPoaStore,
 	)
 
 	err := app.LoadLatestVersion(app.keyMain)
